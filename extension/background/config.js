@@ -1,12 +1,16 @@
 (function(global) { 'use strict'; define(async ({ // This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 	'node_modules/web-ext-utils/browser/': { Runtime, Storage, manifest, },
-	'node_modules/web-ext-utils/browser/version': { gecko, current: browser, },
+	'node_modules/web-ext-utils/browser/version': { current: browser, },
 	'node_modules/multiport/': Port,
 	'node_modules/native-ext/': Native,
 	'common/options': options,
 }) => {
 
-const extId = gecko ? manifest.applications.gecko.id : Runtime.id;
+const extId = (
+	manifest.browser_specific_settings && manifest.browser_specific_settings.gecko && manifest.browser_specific_settings.gecko.id
+) || (
+	manifest.applications && manifest.applications.gecko && manifest.applications.gecko.id
+) || Runtime.id;
 
 async function write() { let port; try {
 	// launch the process
