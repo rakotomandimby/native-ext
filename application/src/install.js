@@ -51,8 +51,6 @@ async function install() {
 			replaceFile(outPath('bin', 'latest'+ scriptExt), script(bin, forwardArgs), { mode: '754', }),
 		]),
 
-		!windows && writeProfile({ bin, browser: 'chromium', dir: '', }),
-		writeProfile({ browser: 'chrome', dir: '', }),
 		writeProfile({ browser: 'firefox', dir: '', }),
 
 		// no uninstallation yet
@@ -61,14 +59,13 @@ async function install() {
 }
 
 async function writeProfile({ browser, dir, ids, locations, }) {
+	if (browser !== 'firefox') { throw new Error(`Only Firefox is supported`); }
 
 	const profile = !dir ? browser : crypto.createHash('sha1').update(dir).digest('hex').slice(-16).padStart(16, '0');
 	const name = fullName +'.'+ profile;
 	const target = outPath('profiles', profile) + Path.sep;
 
-	const defaultIds = browser === 'firefox'
-	? [ '@'+ packageJson.name, '@'+ packageJson.name +'-dev', ]
-	: [ 'kfabpijabfmojngneeaipepnbnlpkgcf', ];
+	const defaultIds = [ '@'+ packageJson.name, '@'+ packageJson.name +'-dev', ];
 
 	ids = Array.from(new Set(Array.isArray(ids) ? defaultIds.concat(ids) : defaultIds));
 	locations = typeof locations === 'object' && !Array.isArray(locations) && locations || { };
@@ -78,25 +75,15 @@ async function writeProfile({ browser, dir, ids, locations, }) {
 		name, description: `WebExtensions native connector (${browser}: ${dir})`,
 		path: target + packageJson.name + scriptExt,
 		type: 'stdio', // mandatory
-		allowed_extensions: browser === 'firefox' ? ids : undefined,
-		allowed_origins: browser !== 'firefox' ? ids.map(id => `chrome-extension://${id}/`) : undefined,
+		allowed_extensions: ids,
 	};
 	const config = {
 		browser, profile: dir, locations: typeof locations === 'object' && locations || { },
 	};
 
-	const link = windows ? (browser === 'firefox'
-		? 'HKCU\\Software\\Mozilla\\NativeMessagingHosts\\' : 'HKCU\\Software\\Google\\Chrome\\NativeMessagingHosts\\'
-	) + name
-	: outPath((linux ? {
-		chromium: '../.config/chromium/NativeMessagingHosts',
-		chrome: '../.config/google-chrome/NativeMessagingHosts',
-		firefox: '../.mozilla/native-messaging-hosts',
-	} : {
-		chromium: '../Chromium/NativeMessagingHosts',
-		chrome: '../Google/Chrome/NativeMessagingHosts',
-		firefox: '../Mozilla/NativeMessagingHosts',
-	})[browser], name +'.json');
+	const link = windows
+		? 'HKCU\\Software\\Mozilla\\NativeMessagingHosts\\' + name
+		: outPath(linux ? '../.mozilla/native-messaging-hosts' : '../Mozilla/NativeMessagingHosts', name +'.json');
 
 	(await Promise.all([
 

@@ -56,17 +56,11 @@ const exports = Object.assign(new Manager({
 	 */
 	setApplicationName,
 
-	extensionInstallPage: browser => ({
-		edge: null, // Edge 15 supports native messaging, but does it pretty differently (https://docs.microsoft.com/en-us/microsoft-edge/extensions/guides/native-messaging). Also "Allowing other apps to download content that changes extension behavior" is not allowed, whatever that actually means.
-		firefox: 'https://addons.mozilla.org/firefox/addon/native-ext/',
-		fennec: null, // doesn't currently make sense
-		chrome: 'https://chrome.google.com/webstore/detail/nativeext/kfabpijabfmojngneeaipepnbnlpkgcf',
-		chromium: null, opera: null, vivaldi: null, // probably not
-	})[browser] || 'https://github.com/NiklasGollenstede/native-ext/releases',
+	extensionInstallPage: () => 'https://addons.mozilla.org/firefox/addon/native-ext/',
 });
 exports.onError((type, _error) => type === 'spawn' && setApplicationName(null));
 
-const { runtime, } = (global.browser || global.chrome);
+const { runtime, } = global.browser;
 
 
 async function requestPermission({ message, }) {
@@ -121,8 +115,7 @@ async function sendMessage(message) { return new Promise((resolve, reject) => {
 		} else { resolve(reply); } },
 	));
 }).catch(error => ({ failed: true, code: 'not-reachable', message: `NativeExt is not installed or not enabled (${error.message})`, })); }
-const gecko = runtime.getURL('').startsWith('moz-');
-const extIds = gecko ? [ '@native-ext', '@native-ext-dev', ] : [ 'kfabpijabfmojngneeaipepnbnlpkgcf', ];
+const extIds = [ '@native-ext', '@native-ext-dev', ];
 
 
 let gettingDB; async function getStore() { return gettingDB || (gettingDB = (async () => {

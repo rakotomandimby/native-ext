@@ -66,7 +66,7 @@ setEventGetter(Process, 'exit', Self, { async: true, once: true, });
 
 //// start implementation
 
-const { runtime, } = (global.browser || global.chrome);
+const { runtime, } = global.browser;
 const rootUrl = runtime.getURL('');
 const initPath = require.toUrl('./init.node.js').slice(rootUrl.length - 1);
 

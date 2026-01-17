@@ -1,13 +1,12 @@
 (function(global) { 'use strict'; define(async ({ // This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 	'node_modules/web-ext-utils/browser/storage': { local: storage, }, // do not synchronize the settings
-	'node_modules/web-ext-utils/browser/version': { gecko, },
 	'node_modules/web-ext-utils/options/': Options,
 	exeUrl,
 }) => {
-const isBeta = (/^\d+\.\d+.\d+(?!$)/).test((global.browser || global.chrome).runtime.getManifest().version); // version doesn't end after the 3rd number ==> bata channel
+const isBeta = (/^\d+\.\d+.\d+(?!$)/).test(global.browser.runtime.getManifest().version); // version doesn't end after the 3rd number ==> beta channel
 
 const rId = {
-	exp: !gecko ? (/^[a-p]{32}$/) : (/^{[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}}$|^[\w.-]*@[\w.-]*$/),
+	exp: (/^{[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}}$|^[\w.-]*@[\w.-]*$/),
 	message: 'Must be a valid extension ID',
 };
 
@@ -31,12 +30,10 @@ const model = {
 			profile: {
 				title: 'Profile location',
 				default: false,
-				input: { type: 'boolean', suffix: `set manually <details><summary>[INFO]:</summary>
-				NativeExt is only able to automatically locate the current browser profile if it is in one of the systems default locations.<br>
-				If you explicitly set a custom location, or the auto detection fails, please copy the path to the profile directory below.<br>`+ (
-				gecko ? `You can find the path on the <code>about:support</code> page in the first table in the <b>Profile Folder</b> row.`
-				: `You can find the path on the <code>chrome://version/</code> page next to <b>Profile Path</b>.`
-				) +`</details>`, },
+			input: { type: 'boolean', suffix: `set manually <details><summary>[INFO]:</summary>
+			NativeExt is only able to automatically locate the current browser profile if it is in one of the systems default locations.<br>
+			If you explicitly set a custom location, or the auto detection fails, please copy the path to the profile directory below.<br>
+			You can find the path on the <code>about:support</code> page in the first table in the <b>Profile Folder</b> row.</details>`, },
 				children: {
 					path: {
 						default: '',

@@ -13,82 +13,35 @@ const home = require('os').homedir();
 return async function({ magic, extId, }) {
 
 	// step 1: find all dirs that contain the profiles to check
-	let parents = [ ], names = null; switch (config.browser) { case 'firefox': {
+	if (config.browser !== 'firefox') { throw new Error(`Only Firefox is supported`); }
+	let parents = [ ], names = null; {
 
 		const { cwd, args, } = getBrowserArgs(); // get from cli
 		const iProfileArg = args.findIndex(arg => (/^"?-profile"?$/i).test(arg)) + 1;
 		if (iProfileArg !== 0 && args[iProfileArg]) {
-			const path = makeAbsolute(args[iProfileArg].replace(/^"|"$/g, ''), cwd); if (!path) { break; }
-			names = [ Path.basename(path), ]; parents = [ Path.dirname(path), ]; break;
+			const path = makeAbsolute(args[iProfileArg].replace(/^"|"$/g, ''), cwd);
+			if (path) {
+				names = [ Path.basename(path), ]; parents = [ Path.dirname(path), ];
+			}
+		} else {
+			// there is also a flag to choose a specific profile in the default location, but we should find that anyway
+			switch (process.platform) { // use default, no configuration in for firefox
+				case 'win32': {
+					parents = [ process.env.APPDATA + String.raw`\Mozilla\Firefox\Profiles`, ];
+				} break;
+				case 'linux': {
+					parents = [ home +'/.mozilla/firefox', ]; // directly in there
+				} break;
+				case 'darwin': {
+					parents = [ home +'/Library/Application Support/Firefox/Profiles/', ];
+				} break;
+				default: throw new Error(`Unknown OS ${process.platform}`);
+			}
 		}
-		// there is also a flag to choose a specific profile in the default location, but we should find that anyway
-
-		switch (process.platform) { // use default, no configuration in for firefox
-			case 'win32': {
-				parents = [ process.env.APPDATA + String.raw`\Mozilla\Firefox\Profiles`, ];
-			} break;
-			case 'linux': {
-				parents = [ home +'/.mozilla/firefox', ]; // directly in there
-			} break;
-			case 'darwin': {
-				parents = [ home +'/Library/Application Support/Firefox/Profiles/', ];
-			} break;
-			default: throw new Error(`Unknown OS ${process.platform}`);
-		}
-	} break; case 'chromium': case 'chrome': { // get the chrome data dir
-		// docs: https://chromium.googlesource.com/chromium/src.git/+/HEAD/docs/user_data_dir.md
-		// TODO: on linux this could probably yield better results by cecking `/proc/${browser.pid}/fd` for a symlink to a file whose path ends with '/Extension State/LOCK'
-
-		const { cwd, args, } = getBrowserArgs(); // get from cli
-		const arg = args.find(arg => (/^"?--user-data-dir=/).test(arg)); if (arg) { // TODO: does /user-data-dir= work as well (on windows?)
-			let cdd = arg.replace(/"/g, '').replace(/^--user-data-dir=/, '').replace(/\\ /g, ' ');
-			cdd = makeAbsolute(cdd, cwd); cdd && (parents = [ cdd, ]); break;
-		}
-
-		// get from env or default
-		switch (process.platform) {
-			case 'win32': {
-				const prefix = process.env.LOCALAPPDATA;
-				parents = (config.browser === 'chromium' ? [
-					String.raw`Chromium\User Data`, // chromium
-				] : [
-					String.raw`Google\Chrome\User Data`, // release
-					String.raw`Google\Chrome Beta\User Data`, // beta
-					String.raw`Google\Chrome SxS\User Data`, // canary
-				]).map(suffix => Path.join(prefix, suffix));
-			} break;
-			case 'linux': {
-				if (process.env.CHROME_USER_DATA_DIR) {
-					parents = [ Path.resolve(process.env.CHROME_USER_DATA_DIR), ];
-				} else {
-					const prefix = (process.env.CHROME_CONFIG_HOME || process.env.XDG_CONFIG_HOME || '~/.config').replace(/^~(?=[\\/])/, () => home);
-					parents = (config.browser === 'chromium' ? [
-						'chromium',
-					] : [
-						'google-chrome',
-						'google-chrome-beta',
-						'google-chrome-unstable',
-					]).map(suffix => Path.join(prefix, suffix));
-				}
-			} break;
-			case 'darwin': {
-				const prefix = home +'/Library/Application Support';
-				parents = (config.browser === 'chromium' ? [
-					String.raw`Chromium`, // chromium
-				] : [
-					String.raw`Google\Chrome`, // release
-					String.raw`Google\Chrome Beta`, // beta
-					String.raw`Google\Chrome Canary`, // canary
-				]).map(suffix => Path.join(prefix, suffix));
-			} break;
-			default: throw new Error(`Unknown OS ${process.platform}`);
-		}
-	} }
+	}
 
 	magic = Buffer.from(magic, 'utf-8');
-	const path = config.browser === 'firefox'
-	? `/browser-extension-data/${extId}/storage.js`
-	: `/Local Extension Settings/${extId}/000003.log`;
+	const path = `/browser-extension-data/${extId}/storage.js`;
 
 
 	// step 2: check all possible locations for that magic value

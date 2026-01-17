@@ -1,8 +1,6 @@
 /*eslint strict: ['error', 'global'], no-implicit-globals: 'off'*/ 'use strict'; /* globals module, */ // license: MPL-2.0
 module.exports = function({ options, /*packageJson,*/ manifestJson, files, }) {
 
-	// manifestJson.applications.chrome = { id: '...', };
-
 	manifestJson.permissions.push(
 		'nativeMessaging',
 		'notifications',
@@ -10,15 +8,11 @@ module.exports = function({ options, /*packageJson,*/ manifestJson, files, }) {
 		'https://*.github.com/*', 'https://*.s3.amazonaws.com/*', // for updates
 	);
 
-	options.chrome && (manifestJson.key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAg6wrLIc0wvAyq94OpBt/7vvo9xpwJIuMdwevaW1oc/SXdRwHbS9ViGn/1g8DjJGscYA8uKxc016QRPeBro/lB/dY+frID/bsBOAoKYhesT6nyY2UooGu3BGIDp7vLU+duhQB1mAgsoraiTcW9siU3uReiIVf/tsD/ksrZt8j/B/EaOUZoUULWxaPToJBGRvMbY1wu+7vvFLlFhUhM8qUjUJgHv/l4aP5gNuTjP+5xtltqnXt0QTCgkfsTGgo0dVu9ilAm4orDdnVA8eAyh6GlQFV8yQouyKkWZpiM329lNWF4GZ+olPWDqnd+ffznzS68fB0RC3ujIBOD5MuhyxW0wIDAQAB');
-
-	!options.viewRoot && (options.viewRoot = options.chrome ? 'NativeExt.html' : 'NativeExt');
+	!options.viewRoot && (options.viewRoot = 'NativeExt');
 
 	manifestJson.options_ui.open_in_tab = false;
 
 	delete manifestJson.browser_action;
-
-	manifestJson.background.persistent = options.chrome ? true : undefined; // TODO: try event page in chrome
 
 	// TODO: only include necessary files
 	files.node_modules = [

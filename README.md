@@ -9,7 +9,7 @@ This application enables browser extensions/add-ons to be truly awesome (again).
 
 ### Installation
 
-Get the extension for your browser(s): <sub><sub><a href="https://addons.mozilla.org/firefox/addon/native-ext/"><img src="./resources/get-firefox-ext-172x60.png" width="86" height="30"></a></sub></sub> <sub><sub><a href="https://chrome.google.com/webstore/detail/nativeext/kfabpijabfmojngneeaipepnbnlpkgcf/"><img src="./resources/get-chrome-ext-206x58.png" width="103" height="29"></a></sub></sub>
+Get the extension for Firefox: <sub><sub><a href="https://addons.mozilla.org/firefox/addon/native-ext/"><img src="./resources/get-firefox-ext-172x60.png" width="86" height="30"></a></sub></sub>
 
 Then follow the (short) instructions on the options page to install and connect the application.
 
@@ -35,12 +35,12 @@ If you have any questions not answered here or problems with the setup of Native
 ## For developers
 
 This package tries to solve a problem that arises with the deprecation of classical Add-Ons in Firefox.\
-From Firefox version 57 onwards (November 2017), Firefox only supports "WebExtensions", which are very similar to the extensions running in Chrome, other Chromium based browsers and even Microsoft Edge.\
+From Firefox version 57 onwards (November 2017), Firefox only supports "WebExtensions".\
 While Firefox Add-ons could previously dig very deep into the Firefox code, capable of changing nearly every aspect of the browser, and even doing binary system calls, this is no longer possible with WebExtensions.
-They can only access normal web APIs (XHR, IndexedDB, ...) and a set of APIs in the `browser`/`chrome` namespace explicitly  designed for them.
+They can only access normal web APIs (XHR, IndexedDB, ...) and a set of APIs in the `browser` namespace explicitly designed for them.
 This means that browser extensions can now only do things that are, at least to a certain extend, intended by the browser vendors.
 Many innovative things that could previously be implemented in Firefox Add-Ons are no longer possible.\
-The only way (partially) around this is to use "Native Messaging": WebExtensions in Chrome and Firefox can send JSON-messages to native applications running on the host system — if the target applications are explicitly designed for it.
+The only way (partially) around this is to use "Native Messaging": Firefox WebExtensions can send JSON-messages to native applications running on the host system — if the target applications are explicitly designed for it.
 
 
 ### The Problem
@@ -117,8 +117,8 @@ These modules can be required like build-in modules (e.g. `require('ref')`).
 
 The **`browser`** module exports the following constants:
 
- * `name`: One of `'chromium'`, `'chrome'` or `'firefox'`.
- * `profileDir`: The current browser profile location, e.g. `C:\Users\<user>\AppData\Roaming\Mozilla\Firefox\Profiles\<rand>.<name>` or `C:\Users\<user>\AppData\Local\Google\Chrome\User Data\Default`
+ * `name`: `'firefox'`.
+ * `profileDir`: The current browser profile location, e.g. `C:\Users\<user>\AppData\Roaming\Mozilla\Firefox\Profiles\<rand>.<name>`
  * `extId` The ID of the current extension (string).
  * `extDir` or `extFile`: The directory or file the extension is loaded from. Only the applicable one is set.
  * `pid`: Process ID of the current browsers main process (integer). (This is retrieved lazily and may be expensive to obtain.)
@@ -179,7 +179,7 @@ module.exports = fs;
 ### Extension location
 
 As NativeExt loads code from inside the extension package, it needs to locate the local extension installation.
-Currently, the only supported location is in the `extensions/` (or `Extensions/`) folder in the profile, which is correct for normal extension installations.
+Currently, the only supported location is in the `extensions/` folder in the profile, which is correct for normal extension installations.
 
 The location of other extensions, especially unpacked ones during development, must be explicitly set under "External extensions" on the options page of the NativeExt extension for each profile.
 An alternative workaround is to place a copy of the extension (in the browser specific format) in the correct location.
@@ -206,7 +206,7 @@ build only for your current system:
 
 or for all supported platforms:
 
-`npm run build-all` (these will not work with Chrome or extensions that rely on `ffi`, which needs to be build explicitly for each platform).
+`npm run build-all` (these will not work with extensions that rely on `ffi`, which needs to be build explicitly for each platform).
 
 The builds will be placed in the `/release` folder.
 
