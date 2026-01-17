@@ -5,9 +5,9 @@
 	"license": "MIT",
 	"scripts": {},
 	"dependencies": {
-		"multiport": "^0.2.3",
+		"multiport": "0.2.3",
 		"native-ext": "^0.3.2-beta.1",
-		"pbq": "^0.3.4",
-		"web-ext-utils": "^0.1.4"
+		"pbq": "0.3.3",
+		"web-ext-utils": "0.1.6"
 	}
 }
