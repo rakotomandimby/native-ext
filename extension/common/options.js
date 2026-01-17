@@ -3,7 +3,7 @@
 	'node_modules/web-ext-utils/options/': Options,
 	exeUrl,
 }) => {
-const isBeta = (/^\d+\.\d+.\d+(?!$)/).test(global.browser.runtime.getManifest().version); // version doesn't end after the 3rd number ==> bata channel
+const isBeta = (/^\d+\.\d+.\d+(?!$)/).test(global.browser.runtime.getManifest().version); // version doesn't end after the 3rd number ==> beta channel
 
 const rId = {
 	exp: (/^{[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}}$|^[\w.-]*@[\w.-]*$/),

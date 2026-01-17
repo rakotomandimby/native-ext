@@ -17,7 +17,7 @@ if (config.locations && (extId in config.locations)) {
 	try { stat = FS.statSync(path); } catch (_) { }
 	if (stat && stat.isDirectory()) { browser.extDir = path; }
 	else if (stat && stat.isFile()) { browser.extFile = path; }
-	else { throw new Error(`Location configured for ${extId} is not accessable`); }
+	else { throw new Error(`Location configured for ${extId} is not accessible`); }
 } else {
 	if (browser.name === 'firefox') {
 		const path = Path.join(browser.profileDir, 'extensions', extId); let stat;
